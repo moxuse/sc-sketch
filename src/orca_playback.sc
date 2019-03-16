@@ -1,13 +1,13 @@
 (
 SynthDef(\orca_playback, {arg bufnum, note;
 	var src, env, rate;
-	rate = (note + 60).midicps / 60.midicps;
-	src = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * rate, 1.0, 0, 0, doneAction: Done.freeSelf).dup * 0.15;
-	Out.ar(0, src);
+	rate = (note + 48).midicps / 60.midicps;
+	src = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * rate, 1.0, 0, 0, doneAction: Done.freeSelf).dup * 0.3;
+	Out.ar(60, src * EnvGen.ar(Env.perc(0.1,2)));
 }).store;
-)
 
-(
+
+
 OSCdef(\orca_playback, {| msg |
 	var bufnum, note, name, index;
 	name = msg[1].asString;
