@@ -1,5 +1,5 @@
 (
-SynthDef(\orca_playback, {arg bufnum, note;
+SynthDef(\orca_playback, {arg bufnum, note, outBus=60, sustain=1;
 	var src, env, rate;
 	rate = (note + 48).midicps / 60.midicps;
 	src = PlayBuf.ar(1, bufnum, BufRateScale.kr(bufnum) * rate, 1.0, 0, 0, doneAction: Done.freeSelf).dup * 1.5;
@@ -31,7 +31,7 @@ OSCdef(\orca_playback, {| msg |
 	index = msg[2].asInt;
 	bufnum = ~dirt.soundLibrary.buffers.at(name.asSymbol)[index].bufnum;
 	note = msg[3];
-	s.sendMsg(9, \orca_playback, s.nextNodeID, 1, 2, \bufnum, bufnum, \note, note);
+	s.sendMsg(9, \orca_playback, s.nextNodeID, 0, 1, \bufnum, bufnum, \note, note, \outBus, 6, \amp,0.2,\sustain, 0.1);
 }, 'p');
 
 

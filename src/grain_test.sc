@@ -9,12 +9,12 @@ SynthDef('orbit_rec', {
   var in, trig;
   in = In.ar(40, 1);
   trig = Amplitude.kr(in);
-  RecordBuf.ar(in, ~rec_Buf, doneAction: Done.none, trigger: trig, loop: 1);
+  RecordBuf.ar(in, ~rec_Buf, doneAction: 0, trigger: trig, loop: 1);
 }).store();
 
 SynthDef('grain_player', {arg center=0.5;
   var trate, dur, clk, pos, pan, src;
-    trate = MouseY.kr(8,120,1);
+trate = MouseY.kr(8,120,1);
     dur = 4 / trate;
     clk = Impulse.kr(trate);
   pos = ((Lag2.kr(center,  0.25) * BufDur.kr(~rec_Buf))) + LFNoise2.kr(0.2, 5.0);
