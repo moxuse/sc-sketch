@@ -25,3 +25,18 @@ OSCdef(\orca_playback, {| msg |
 
 s.boot
 
+(
+SynthDef(\ld4, {|out, sustain = 1, note = 0, speed = 1, begin=0, end=1, pan, accelerate, amp = 1, offset|
+    var sound, d_freq, env;
+	d_freq = (note + 60).midicps;
+
+  env = EnvGen.ar(Env.perc(0.01, sustain * 3.5, amp, -4), timeScale:sustain, doneAction:2);
+
+  sound = Mix.fill(2, {SinOsc.ar(d_freq, 0.0, 0.1) + SinOsc.ar(d_freq * 2, LFSaw.ar(d_freq * 2,0,0.1,1), 0.2)});
+
+    Out.ar(0,
+      Pan2.ar(sound * env, 0)
+    );
+}).store;
+
+)
