@@ -1,10 +1,11 @@
 s.boot;
 
+
 (
 var envs, yamlPath, file, str, list, nameInput;
 var window, sliderC, sliderMF, sliderMS, envF, envG, playButton, saveFunc, saveButton, listView;
 
-yamlPath = "~/dev/sc/src/pmosc_envs/env.yml".standardizePath;
+yamlPath = PathName.new("./pmosc_envs/env.yml").fullPath;
 
 SynthDef(\pmosc_r, {|cfreq=440, modfreq=50, modephase=0.0, modscale = 4.0|
 	var src, modEnv, env, modEnvCtl, envCtl;
@@ -19,6 +20,16 @@ SynthDef(\pmosc_r, {|cfreq=440, modfreq=50, modephase=0.0, modscale = 4.0|
 
 
 file = File(yamlPath, "rb+");
+
+if(PathName.new("./pmosc_envs").isFolder == false, { 
+	"mkdir pmosc_envs".unixCmd;
+});
+if(file.isOpen == false, {
+	"file not exist".postln;
+	"echo envs: >> ./pmosc_envs/env.yml".unixCmd;
+	file.close();
+});
+
 file.readAllString.postln;
 envs = (yamlPath).parseYAMLFile;
 
@@ -112,5 +123,3 @@ window.onClose_({
 });
 )
 
-
-s.scope
