@@ -2,8 +2,13 @@
 var outBusIndex  = ~dirt.orbits[0].synthBus.index;
 var orbitGroupIndex = 2;
 var numChannels = ~dirt.numChannels;
+var task;
+var window;
+
 ~rec_Buf = Buffer.alloc(s, 44100 * 6.0, 1, bufnum: 9999);
 ~rec_group = Group.after(orbitGroupIndex);
+
+window = Window("grain test", Rect(10,10,50,20));
 
 SynthDef('orbit_rec', {
   var in, trig;
@@ -24,26 +29,23 @@ trate = MouseY.kr(8,120,1);
   Out.ar(outBusIndex, src);
 }).store();
 
-t = Task.new({
+task = Task.new({
   inf.do({
     s.sendMsg("/n_set",  92000, ["center", 1.0.rand]);
     "ready...".postln;
     3.0.wait;
    });
 });
-)
 
-(
+
 s.sendMsg(9, "orbit_rec", 99999, 1, ~rec_group.nodeID);
 s.sendMsg(9, "grain_player", 92000, 1, 2);
-t.play;
+
+task.play;
+window.onClose_({
+	s.sendMsg(11, 92000);
+	s.sendMsg(11, 99999);
+	task.stop();
+});
+window.front;
 )
-
-(
-s.sendMsg(11, 92000);
-s.sendMsg(11, 99999);
-t.stop();
-)
-
-~rec_Buf.plot()
-

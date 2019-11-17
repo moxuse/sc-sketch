@@ -57,7 +57,7 @@ SynthDef("mem2", {| note = 0, coef_ = 0.37, out = 0 |
 	Out.ar(6, (src* 4).softclip * 0.5  * EnvGen.ar(Env.perc(0.01,3,1,-4),doneAction:2));
 }).store();
 
-
+/*
 OSCdef(\orca_playback2, {| msg |
 	var note, name, index;
 	s.sendMsg(9, \shu2, s.nextNodeID, 0, 1, \out, 6);
@@ -73,12 +73,21 @@ OSCdef(\orca_playback3, {| msg |
 	var note, name, index;
 	// msg.postln;
 	s.sendMsg(9, \mem2, s.nextNodeID, 0, 1, \out, 6, \note, msg[1], \coef_, msg[2] / 10.0);
-}, 'o');
+}, 'o');*/
 )
 
 
-s.sendMsg(9, \shu, s.nextNodeID, 1, 0);
-s.sendMsg(9, \shu2, s.nextNodeID, 1, 0);
+// s.sendMsg(9, \shu, s.nextNodeID, 1, 2);
+// s.sendMsg(9, \shu2, s.nextNodeID, 1, 2);
+//
+// s.sendMsg(9, \mem1, s.nextNodeID, 1, 2, \note, 4);
+// s.sendMsg(9, \mem2, s.nextNodeID, 1, 2, \note, 12);
+//
+// s.sendMsg(9, \lead_0, s.nextNodeID, 1, 2, \note, 0);
+// s.sendMsg(9, \lead_1, s.nextNodeID, 1, 2, \note, 3);
+// s.sendMsg(9, \lead_2, s.nextNodeID, 1, 2, \note, 4);
+//
+// s.sendMsg(9, \lead_f, s.nextNodeID, 1, 2, \note, 0);
+// s.sendMsg(9, \lead_g, s.nextNodeID, 1, 2, \note, -12);
+// s.sendMsg(9, \lead_h, s.nextNodeID, 1, 2, \note, 4);
 
-
-s.boot

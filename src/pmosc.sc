@@ -1,27 +1,25 @@
-s.boot;
-
-
 (
 var envs, yamlPath, file, str, list, nameInput;
 var window, sliderC, sliderMF, sliderMS, envF, envG, playButton, saveFunc, saveButton, listView;
+var targetGroupNum = 2;
 
-yamlPath = PathName.new("./pmosc_envs/env.yml").fullPath;
+yamlPath = PathName.new("~/dev/sc/src/pmosc_envs/env.yml").fullPath;
 
-SynthDef(\pmosc_r, {|cfreq=440, modfreq=50, modephase=0.0, modscale = 4.0|
+SynthDef(\pmosc_r, {|cfreq=440, modfreq=50, modephase=0.0, modscale = 4.0, out = 0|
 	var src, modEnv, env, modEnvCtl, envCtl;
 	modEnv = Env.newClear(8);
 	env = Env.newClear(8);
-	modEnvCtl = Control.names([\modenv]).kr( modEnv.asArray );
-	envCtl = Control.names([\env]).kr( env.asArray );
-	src = PMOsc.ar(cfreq + LFNoise2.ar(15, 40, 40), modfreq, EnvGen.ar(modEnvCtl, 1, modscale), modephase, 0.2).dup;
+	modEnvCtl = Control.names([\modenv]).kr(modEnv.asArray);
+	envCtl = Control.names([\env]).kr(env.asArray);
+	src = PMOsc.ar(cfreq + LFNoise2.ar(15, 40, 40), modfreq, EnvGen.ar(modEnvCtl, modscale, levelScale:2), modephase, 0.2).dup;
 	2.do({src = src* 0.25 + CombC.ar(src, LFNoise2.kr(0.8, 0.1, 0.05).abs, [0.1,0.12] + LFNoise2.kr(0.2, 0.3).abs, 1 +  LFNoise2.kr(1, 0.2).abs + 0.8) });
-	Out.ar(0, src * EnvGen.ar(envCtl, 1, doneAction: 2));
+	Out.ar(out, src * EnvGen.ar(envCtl,1, 0.85, timeScale:2 ,doneAction: 2));
 }).store();
 
 
 file = File(yamlPath, "rb+");
 
-if(PathName.new("./pmosc_envs").isFolder == false, { 
+if(PathName.new("./pmosc_envs").isFolder == false, {
 	"mkdir pmosc_envs".unixCmd;
 });
 if(file.isOpen == false, {
@@ -32,6 +30,7 @@ if(file.isOpen == false, {
 
 file.readAllString.postln;
 envs = (yamlPath).parseYAMLFile;
+~mposcEnvs = envs;
 
 window = Window("phase modulation synth generator", Rect(150 , Window.screenBounds.height - 250, 350, 550)).front;
 window.view.decorator = FlowLayout(window.view.bounds);
@@ -65,6 +64,7 @@ playButton = Button(window, Rect(0,0,90,40))
 	sendEnv = envF.asEnv(1, 1, 1).asArray;
 	sendModEnv = envG.asEnv(1, 2, 1).asArray;
 	nextId = s.nextNodeID;
+	sendModEnv.postln;
 	s.sendBundle(0.2,
 		[\s_new, \pmosc_r, nextId, 0, 1],
 		[\n_set, nextId, \cfreq, sliderC.value],
@@ -108,8 +108,8 @@ listView = ListView(window, Rect(10,10,340,170))
   .selectionAction_({|v_|
 	var sym, envVals;
 	sym = list[v_.selection][0];
+	("You choose: index: " ++ v_.selection[0] ++ " env: " ++ sym).postln;
 	envVals = envs.at("envs").at(v_.selection);
-	envVals.postln;
 	envF.value_(envVals[0].at("env"));
 	envG.value_(envVals[0].at("mod"));
 	sliderC.value_(envVals[0].at("ctrl"));
@@ -121,5 +121,36 @@ window.front;
 window.onClose_({
   file.close();
 });
-)
 
+OSCdef(\pmosc_kicker,{|msg|
+	var index = 0;
+	var nextId = s.nextNodeID;
+	var sym, envVals, sendEnv, sendModEnv, envs_, mods_, out_;
+	var orbitGroupIndex = 2;
+
+	if (msg.includes(\mposc), {
+		if (msg.includes(\n), {
+			index = msg[msg.indexOf(\n).asInt + 1].asInt;
+			// ("\n index exists: " ++ index).postln;
+		});
+		envVals = (envs.at("envs"))[index];
+		sendEnv = envVals.at("env");
+		sendModEnv = envVals.at("mod");
+
+		envs_ = Env.new(sendEnv[0].collect({|v_| v_.asFloat}), sendEnv[1].collect({|v_| v_.asFloat})).asArray;
+		mods_ = Env.new(sendModEnv[0].collect({|v_| v_.asFloat}), sendModEnv[1].collect({|v_| v_.asFloat})).asArray;
+
+		s.postln;
+		s.sendBundle(0.05,
+			[\s_new, \pmosc_r, nextId, 0, targetGroupNum],
+			[\n_set, nextId, \cfreq, envVals.at("ctrl").asFloat],
+			[\n_set, nextId, \modfreq, envVals.at("modFreq").asFloat],
+			[\n_set, nextId, \modscale, envVals.at("modeScale").asFloat],
+			[\n_setn, nextId, \env, envs_.size] ++ envs_,
+			[\n_setn, nextId, \modenv, mods_.size] ++ mods_
+		);
+	});
+
+}, \play2);
+
+)

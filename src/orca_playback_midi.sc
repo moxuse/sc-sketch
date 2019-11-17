@@ -2,7 +2,7 @@ s.reboot;
 
 ~d = DirtSoundLibrary(s, 2);
 ~d.loadSoundFiles(Platform.resourceDir ++ "/sounds/superdirt/*", true);
-~outBusCh = 6;
+~outBusCh = 0;
 
 
 (
@@ -38,25 +38,23 @@ SynthDef('orca_playback', {|rate = 1.0, bufnum = 0, amp = 1.0, pan = 0.0, shape 
 SynthDef('orca_mixer', {| chorus = 0.01, room = 0.9 |
 	var signal = In.ar(~outBusCh,2), amp = 1,  out_signal, rev;
 
-	signal = signal + Mix.fill(6, {
-			DelayN.ar(signal, chorus, LFNoise1.kr(Rand(5,10),0.01,0.02));
-		});
+	 signal = (Mix.fill(3, {
+	 	DelayL.ar(signal, chorus, LFNoise2.kr(Rand(2,10), 0.01, 0.0).abs, 1, signal);
+	}));
 
-	4.do({signal = (signal * (1.0 - (room * 0.125))) + (CombN.ar(signal, 0.3, {[0.04.rand, 0.03.rand] +  0.05}, 0.5) * room) });
+	// 4.do({signal = (signal * (1.0 - (room * 0.125))) + (CombN.ar(signal, 0.3, {[0.04.rand, 0.03.rand] +  0.05}, 0.5) * room) });
 
 	rev= FreeVerb2.ar(signal[0], signal[1], (room * 2.0).clip(0,1.0), 0.5);
 	out_signal = Limiter.ar(rev);
 
-
-	Out.ar(0, out_signal)
+	Out.ar(0, out_signal);
 
 }).store()
 
 )
 
-s.sendMsg(9, \orca_mixer, 40, 0, 1);
+s.sendMsg(9, \orca_mixer, 40, 1, 2);
 s.sendMsg(11, 40);
-
 
 
 s.queryAllNodes;
@@ -117,7 +115,7 @@ OSCdef(\detect_perc, {|msg|
 )
 ~d.free;
 
-s.sendMsg(9,'orca_playback', 10001, 0, 1, \bufnum, ~d.getEvent(\mst,30).buffer,\rate,1, \shape, 0.8);
+s.sendMsg(9,'orca_playback', 10001, 0, 1, \bufnum, ~d.getEvent(\mst,0).buffer,\rate,1, \shape, 0.4);
 
 (
 ~e = [
@@ -127,13 +125,22 @@ s.sendMsg(9,'orca_playback', 10001, 0, 1, \bufnum, ~d.getEvent(\mst,30).buffer,\
 	(\folder: \mst, \index: 1),
 	(\folder: \msn2, \index: 23),
 	(\folder: \mpd2, \index: 20), // 5
-	(\folder: \ml2, \index: 4 ),
+	(\folder: \ml5, \index: 4 ),
 	(\folder: \zap, \index: 28 ),
 	(\folder: \mps, \index: 8), // 8
 	(\folder: \mpd2, \index: 20),
 	(\folder: \ml4, \index: 24), // a
 	(\folder: \mb2, \index: 29),
-]
+	(\folder: \mb, \index: 6)
+];
+
+SynthDef("mbass",{arg freq=440, out, sustain=1;
+var src,env;
+	src=SinOsc.ar(freq,SinOsc.ar(freq*2));
+	env=EnvGen.kr(Env.perc(0.01,0.5,0.8,2),doneAction:2);
+	Out.ar(out, Pan2.ar(src*env,LFNoise1.ar(1, 0.2)));
+}).store;
+
 )
 
 (
@@ -151,6 +158,7 @@ MIDIIn.connect;
 
 MIDIdef.noteOn(\note, {|...args|
 	var noteIndex, ratio, pan, bufnum, oct;
+	// args.postln;
 	oct = (args[1]/12 - 4).floor;
 	if (oct <= -1.0, {
 		oct = 1.0/((oct - 1.0) * (oct - 1.0));
@@ -160,7 +168,8 @@ MIDIdef.noteOn(\note, {|...args|
 	bufnum = ~d.getEvent(~e[args[2]].folder, ~e[args[2]].index).buffer;
 	ratio = ~chrom[noteIndex] * oct;
 	pan = (args[0] / 127) * 2.0 - 1.0;
-	s.sendMsg(9,'orca_playback', s.nextNodeID, 0, 1, \bufnum, bufnum, \rate, ratio, \shape, 0.45, \pan, pan, \amp, 1.25);
+	s.sendMsg(9,'orca_playback', s.nextNodeID, 0, 1, \bufnum, bufnum, \rate, ratio, \shape, 0.25, \pan, pan, \amp, 1.15);
+	// s.sendMsg(9,'mbass', s.nextNodeID, 0, 1, \bufnum, bufnum, \freq, (24).midicps * ~chrom[noteIndex] * oct, \shape, 0.25, \pan, pan, \amp, 1.15);
 });
 )
 
