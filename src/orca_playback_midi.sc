@@ -127,7 +127,7 @@ s.sendMsg(9,'orca_playback', 10001, 0, 1, \bufnum, ~d.getEvent(\mst,0).buffer,\r
 	(\folder: \mpd2, \index: 20), // 5
 	(\folder: \ml5, \index: 4 ),
 	(\folder: \zap, \index: 28 ),
-	(\folder: \mps, \index: 8), // 8
+	(\folder: \mps, \index: 16), // 8
 	(\folder: \mpd2, \index: 20),
 	(\folder: \ml4, \index: 24), // a
 	(\folder: \mb2, \index: 29),

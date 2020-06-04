@@ -11,8 +11,8 @@ SynthDef(\pmosc_r, {|cfreq=440, modfreq=50, modephase=0.0, modscale = 4.0, out =
 	env = Env.newClear(8);
 	modEnvCtl = Control.names([\modenv]).kr(modEnv.asArray);
 	envCtl = Control.names([\env]).kr(env.asArray);
-	src = PMOsc.ar(cfreq + LFNoise2.ar(15, 40, 40), modfreq, EnvGen.ar(modEnvCtl, modscale, levelScale:2), modephase, 0.2).dup;
-	2.do({src = src* 0.25 + CombC.ar(src, LFNoise2.kr(0.8, 0.1, 0.05).abs, [0.1,0.12] + LFNoise2.kr(0.2, 0.3).abs, 1 +  LFNoise2.kr(1, 0.2).abs + 0.8) });
+	src = PMOsc.ar(cfreq + LFNoise2.ar(35, 40, 40), modfreq, EnvGen.ar(modEnvCtl, modscale, levelScale:2), modephase, 0.2).dup;
+	3.do({src = src* 0.25 + CombC.ar(src, LFNoise2.kr(0.8, 0.1, 0.05).abs, [0.1,0.12] + LFNoise2.kr(0.2, 0.3).abs, 1 +  LFNoise2.kr(1, 0.2).abs + 0.8) });
 	Out.ar(out, src * EnvGen.ar(envCtl,1, 0.85, timeScale:2 ,doneAction: 2));
 }).store();
 
