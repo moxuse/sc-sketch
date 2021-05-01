@@ -3,7 +3,7 @@ var envs, yamlPath, file, str, list, nameInput;
 var window, sliderC, sliderMF, sliderMS, envF, envG, playButton, saveFunc, saveButton, listView;
 var targetGroupNum = 2;
 
-yamlPath = PathName.new("~/dev/sc/src/pmosc_envs/env.yml").fullPath;
+yamlPath = PathName.new("~/dev/sc-sketch/src/pmosc_envs/env.yml").fullPath;
 
 SynthDef(\pmosc_r, {|cfreq=440, modfreq=50, modephase=0.0, modscale = 4.0, out = 0|
 	var src, modEnv, env, modEnvCtl, envCtl;

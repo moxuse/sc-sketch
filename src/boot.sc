@@ -57,18 +57,43 @@ var diversions = ();
 ];
 
 //PMOSC
-"/Users/moxuse/dev/sc/src/pmosc.sc".loadPaths;
+//"/Users/moxuse/dev/sc/src/pmosc.sc".loadPaths;
 
-"/Users/moxuse/dev/sc/src/orca_midi_min.sc".loadPaths;
-"/Users/moxuse/dev/sc/src/lead_receiver.sc".loadPaths;
-"/Users/moxuse/dev/sc/src/orca_playback.sc".loadPaths;
+//"/Users/moxuse/dev/sc/src/orca_midi_min.sc".loadPaths;
+//"/Users/moxuse/dev/sc/src/lead_receiver.sc".loadPaths;
+//"/Users/moxuse/dev/sc/src/orca_playback.sc".loadPaths;
 
 ~diversions = diversions;
 ~dirt.orbits[0].defaultParentEvent[\diversion] = { diversions[~s].value };
 ~diversions[\sync] = {
-	NetAddr("localhost", 49160).sendMsg("time:0");
+	NetAddr("localhost", 49160).sendMsg("time:1");
+};
+~diversions[\dig0] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;2;16");
+};
+~diversions[\dig1] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;2;18");
+};
+~diversions[\dig2] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;2;20");
+};
+~diversions[\dig3] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;2;22");
+};
+~diversions[\dig4] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;16;16");
+};
+~diversions[\dig5] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;16;18");
+};
+~diversions[\dig6] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;16;20");
+};
+~diversions[\dig7] = {
+	NetAddr("localhost", 49160).sendMsg("write:E;16;22");
 };
 )
+
 
 
 ( // reset event
